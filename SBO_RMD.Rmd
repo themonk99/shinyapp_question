@@ -1,0 +1,75 @@
+---
+title: "SBO"
+author: "RHays"
+date: "5/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(sbo)
+```
+
+```{r}
+
+blog <- readLines("en_US.blogs.txt", warn=FALSE, encoding="UTF-8")
+twit <- readLines("en_US.twitter.txt", warn=FALSE, encoding="UTF-8")
+news <- readLines("en_US.news.txt", warn=FALSE, encoding="UTF-8")
+
+twit_sample <- sample(twit, length(twit)*.05)
+news_sample <- sample(news, length(news)*.05)
+blog_sample <- sample(blog, length(blog)*.05)
+
+
+
+```
+
+```{r}
+combined_sample <- c(twit_sample, blog_sample, news_sample)
+combined_sample_final <- iconv(combined_sample, "UTF-8","ASCII", sub="")
+
+corpus_train <- sbo_predictor(object = combined_sample_final, 
+                   N = 3, # Train a 3-gram model
+                   dict = target ~ 0.75, # cover 75% of training corpus
+                   .preprocess = sbo::preprocess, # Preprocessing transformation 
+                   EOS = ".?!:;", # End-Of-Sentence tokens
+                   lambda = 0.4, # Back-off penalization in SBO algorithm
+                   L = 3L, # Number of predictions for input
+                   filtered = "<UNK>" # Exclude the <UNK> token from predictions
+                   )
+
+saveRDS(corpus_train, file = "corpus_train_app.RDS")
+save(corpus_train, file = "corpus_train_app.RData")
+```
+
+```{r}
+
+
+
+##set.seed(840)
+##(evaluation <- eval_sbo_predictor(corpus_train, test = combined_sample))
+```
+
+```{r}
+freq_terms3 <- kgram_freqs(corpus = combined_sample_final, 
+                 N = 3, 
+                 dict = target ~ 0.75,
+                 .preprocess = sbo::preprocess,
+                 EOS = ".?!:;"
+                 )
+```
+```{r}
+predict(freq_terms3, "case of")
+predict(predictor_set, "case of")
+predict(corpus_train, "In case of")
+
+```
+
+
+```{r}
+chrono_predict <- function(x) system.time(predict(x, "next week"), gcFirst = TRUE)
+lapply(list(sbo_predictor = corpus_train, kgram_freqs = freq_terms3), chrono_predict)
+```
+
+
+
