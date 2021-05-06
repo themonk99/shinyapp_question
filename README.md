@@ -1,18 +1,18 @@
 # shinyapp_question
-Assistance Needed: Shiny App does not find object after deployment.
+I have created a very basic word-prediction APP for a class that utilizes an [SBO predictor][1] object as the source of the prediction results. That SBO file it named "corpus_train" and is listed in the RStudio environment as "external pointer of class 'sbo_predictor'.
 
-the data required is too large to upload to Github, but is at this link:
-https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip 
+The APP works as intended locally. However, when I deploy to Shiny I receive the following log error:
+"Warning: Error in predict_sbo_predictor: external pointer is not valid"
 
-I have moved my Shiny APP code to an app.R document, and added a global.R file to load my files only once to save memory per this suggestion (https://stackoverflow.com/questions/67316766/word-prediction-app-using-too-much-shiny-memory?noredirect=1#comment118987824_67316766) The app loads and functions correctly locally and it does deploy to shiny.io without memory issues.
+Here is the process I used to deploy to Shiny: 
+To avoid uploading the very large raw txt files, of which the 'corpus_train' predictor is a subset, I did the following: 
 
-But, I am now receiving the following error regarding the object 'combined sample':
+ 1. saved the "corpus_train" with this code: saveRDS(corpus_train, file = "corpus_train_app.RDS")
+ 2. added this code to the global.R file: corpus_train <- readRDS("./corpus_train_app.RDS")
+ 3. uploded the RDS file along with the global.R, server.R and ui.R files.
 
-Error in value[3L] : object 'combined_sample' not found Calls: local ... tryCatch -> tryCatchList -> tryCatchOne -> Execution halted
+Did I save the corpus_train SBO object correctly?
 
-I tried inserting the 'corpus_train' function into the app.R file just above the shiny. (Data object not found when deploying shiny app)
-The attached image is a screen grab of the files that I uploaded to shiny.io for the deployment.
+AND 
 
-How do I get shiny to find this object after deployment to the shiny servers?
-
-MUCH appreciation in advance for the help of the Community!
+How do I ensure that Shiny will read the RDS file correctly, allowing the app to fully deploy and provide results?
