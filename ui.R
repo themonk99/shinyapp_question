@@ -1,7 +1,4 @@
-library(sbo)
-library(shiny)
 
-attach("appspace.RData")
 shinyUI(pageWithSidebar(
         
         headerPanel("Predicitve Text APP"),

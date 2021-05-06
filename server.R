@@ -1,5 +1,4 @@
-library(sbo)
-library(shiny)
+
 
 shinyserver <- function(input, output) {
         
